@@ -1,0 +1,229 @@
+import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+
+class Intrebare {
+    String textIntrebare;
+    ArrayList<String> varianteRaspuns;
+    int raspunsCorect;
+
+    public Intrebare(String textIntrebare, ArrayList<String> varianteRaspuns, int raspunsCorect) {
+        this.textIntrebare = textIntrebare;
+        this.varianteRaspuns = varianteRaspuns;
+        this.raspunsCorect = raspunsCorect;
+    }
+}
+
+public class ExamenTeoreticAuto {
+    private JFrame frame;
+    private JLabel intrebareLabel;
+    private ButtonGroup buttonGroup;
+    private JRadioButton[] radioButtons;
+    private JButton raspundeButton;
+    private Timer timer;
+    private JLabel timerLabel;
+
+    private ArrayList<Intrebare> intrebari;
+    private int numarIntrebariAfisate;
+    private int numarRaspunsuriGresite;
+    private int numarRaspunsuriCorecte;
+    private long timpInceput;
+    private long timpMaxim;
+    private String userName; // Added variable for user name
+
+    public ExamenTeoreticAuto() {
+        frame = new JFrame("Examen Teoretic Auto");
+        intrebareLabel = new JLabel();
+        buttonGroup = new ButtonGroup();
+        radioButtons = new JRadioButton[4];
+        raspundeButton = new JButton("Raspunde");
+        timerLabel = new JLabel();
+
+        // Call the function to get user input for their name
+        getUserInput();
+
+        intrebari = new ArrayList<>();
+        Intrebare intrebare1 = new Intrebare("Care este semnificația indicatorului \"Cedează trecerea\"?", new ArrayList<>(List.of("Opritul este interzis", "Prioritatea de trecere este dată vehiculelor care vin din sens invers", " Interzis accesul în zonă", "Drum periculos")), 2);
+        intrebari.add(intrebare1);
+
+        Intrebare intrebare2 = new Intrebare("Ce semnal indică un semafor cu lumina galbenă intermitentă?", new ArrayList<>(List.of("Oprit", "Atenție, semaforul va deveni roșu", "Poți trece în siguranță", "Continuă fără a opri")), 3);
+        intrebari.add(intrebare2);
+
+        Intrebare intrebare3 = new Intrebare("Ce înseamnă indicatorul \"Oprire interzisă\"?", new ArrayList<>(List.of("Opritul este obligatoriu", "Poți opri pentru scurt timp", "Opritul este interzis în zonă", "Opritul este permis doar noaptea")), 3);
+        intrebari.add(intrebare3);
+
+        Intrebare intrebare4 = new Intrebare("Care este limita maximă de viteză în localitate?", new ArrayList<>(List.of("30 km/h", "50 km/h", "70 km/h", "90 km/h")), 2);
+        intrebari.add(intrebare4);
+
+        Intrebare intrebare5 = new Intrebare("Ce semnificaţie are marcajul longitudinal aplicat sub forma unei linii continue pe axul drumurilor publice?", new ArrayList<>(List.of("Ajută conducătorii auto să se orienteze pe timp de noapte", "Nu permite încălcarea lui de către conducătorii de vehicule", "Permite depăşirea vehiculelor", "Permite depăşirea motocicletelor")), 2);
+        intrebari.add(intrebare5);
+
+        Intrebare intrebare6 = new Intrebare("La semnalul dat de personalul autorizat din zona lucrărilor pe drumurile publice, prin rotirea vioaie a braţului, aveţi obligaţia:", new ArrayList<>(List.of("Să măriţi viteza de deplasare a autovehiculului;", "să ocoliţi obstacolul creat în carosabil, circulând în sens giratoriu", "Să ocoliţi obstacolul indicat de acesta", "Sa opriti vehiculul")), 1);
+        intrebari.add(intrebare6);
+
+        Intrebare intrebare7 = new Intrebare("Ce înseamnă indicatorul \"Sens giratoriu\"?", new ArrayList<>(List.of("Trecere obligatorie prin sensul giratoriu", "Prezența unui sens giratoriu în apropiere", "Zonă de depășire","Interzis accesul pe sensul giratoriu")), 1);
+        intrebari.add(intrebare7);
+
+        Intrebare intrebare8 = new Intrebare("Ce trebuie să faci în cazul unui accident rutier?", new ArrayList<>(List.of("Pleacă de la locul accidentului", "Sună la poliție și așteaptă intervenția autorităților", "Continuă drumul fără a opri","Adună informații și pleacă de la locul accidentului")), 2);
+        intrebari.add(intrebare8);
+
+        Intrebare intrebare9 = new Intrebare("Ce semnifică marcajul \"Cale ferată cu bariere\"?", new ArrayList<>(List.of("O cale ferată fără bariere", "O cale ferată cu bariere", "O cale ferată cu trecere la nivel cu o altă cale ferată","Opritul este interzis")), 2);
+        intrebari.add(intrebare9);
+
+        Intrebare intrebare10 = new Intrebare("Cum trebuie să procedezi într-o intersecție fără indicator sau semn de reguli de circulație?", new ArrayList<>(List.of("Păstrează direcția din dreapta", "Ia direcția care îți convine", "Oprește și acordă prioritate vehiculului care vine din dreapta","Ia direcția indicată de semnul de reguli de circulație de pe celălalt drum")), 3);
+        intrebari.add(intrebare10);
+
+        Intrebare intrebare11 = new Intrebare("Ce înseamnă indicatorul \"Intersecție cu circulație dirijată de poliție\"?", new ArrayList<>(List.of("Oprire obligatorie", " Acces interzis", "Urmărește indicațiile polițistului","Trecere la nivel cu o altă cale ferată")), 3);
+        intrebari.add(intrebare11);
+
+        Intrebare intrebare12 = new Intrebare("Ce înseamnă indicatorul \"Drum fără ieșire\"?", new ArrayList<>(List.of("Sfârșit de drum", "Drum cu circulație într-un singur sens", "Nu există ieșire din zonă","Oprire interzisă")), 3);
+        intrebari.add(intrebare12);
+
+        Intrebare intrebare13 = new Intrebare("Ce trebuie să faci când întâlnești un pieton care traversează strada pe trecerea de pietoni?", new ArrayList<>(List.of("Oprire completă", "Reducere a vitezei", "Continuarea deplasării în același ritm","Claxonare pentru a avertiza pietonul")), 1);
+        intrebari.add(intrebare13);
+
+        Intrebare intrebare14 = new Intrebare("Ce trebuie să faci dacă observi că autovehiculul din fața ta își schimbă direcția de mers?", new ArrayList<>(List.of("Reduce viteza și păstrează distanța", "Claxonează pentru a-l avertiza", " Supraveghează atent traficul lateral","Încercuiește-l pentru a-l depăși rapid")), 1);
+        intrebari.add(intrebare14);
+
+        Intrebare intrebare15 = new Intrebare("Care este semnificația indicatorului \"Limitare de viteză\"?", new ArrayList<>(List.of("Viteza maximă permisă", "Viteza minimă permisă", "Viteza recomandată","Viteza în funcție de condițiile meteorologice")), 1);
+        intrebari.add(intrebare15);
+
+        Collections.shuffle(intrebari);
+
+        numarIntrebariAfisate = 0;
+        numarRaspunsuriGresite = 0;
+        numarRaspunsuriCorecte = 0;
+        timpInceput = System.currentTimeMillis();
+        timpMaxim = 5 * 60 * 1000;
+
+        initializeGUI();
+        afisareUrmatoareaIntrebare();
+
+        raspundeButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                verificareRaspuns();
+                afisareUrmatoareaIntrebare();
+            }
+        });
+
+        timer = new Timer(1000, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                actualizeazaTimer();
+            }
+        });
+
+        timer.start();
+    }
+
+    private void getUserInput() {
+        userName = JOptionPane.showInputDialog(frame, "Introduceti numele dumneavoastra:");
+        if (userName == null || userName.isEmpty()) {
+            // Default to "Utilizator" if no name is provided
+            userName = "Utilizator";
+        }
+    }
+
+    private void initializeGUI() {
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(900, 400);
+        frame.setLayout(null);
+
+        intrebareLabel.setBounds(50, 20, 1000, 30);
+        frame.add(intrebareLabel);
+
+        for (int i = 0; i < radioButtons.length; i++) {
+            radioButtons[i] = new JRadioButton();
+            radioButtons[i].setBounds(20, 60 + i * 30, 550, 30);
+            buttonGroup.add(radioButtons[i]);
+            frame.add(radioButtons[i]);
+        }
+
+        raspundeButton.setBounds(20, 200, 150, 30);
+        frame.add(raspundeButton);
+
+        timerLabel.setBounds(20, 250, 300, 30);
+        frame.add(timerLabel);
+        frame.setVisible(true);
+    }
+
+    private void afisareUrmatoareaIntrebare() {
+        if (numarIntrebariAfisate < 10 && (System.currentTimeMillis() - timpInceput) < timpMaxim && numarRaspunsuriGresite < 3) {
+            // Display the user's name along with the question number
+            Intrebare intrebareCurenta = intrebari.get(numarIntrebariAfisate);
+            intrebareLabel.setText(userName + ", intrebare " + (numarIntrebariAfisate + 1) + ": " + intrebareCurenta.textIntrebare);
+
+            List<String> variante = intrebareCurenta.varianteRaspuns;
+            for (int i = 0; i < radioButtons.length; i++) {
+                radioButtons[i].setText(variante.get(i));
+                radioButtons[i].setSelected(false);
+            }
+
+            // Afisare numar de raspunsuri corecte si gresite
+            timerLabel.setText(formatTimpRamas() +
+                    " | Corecte: " + numarRaspunsuriCorecte +
+                    " | Gresite: " + numarRaspunsuriGresite);
+
+            numarIntrebariAfisate++;
+        } else {
+            afisareRezultat("Timpul a expirat, " + userName + ", ai esuat.");
+        }
+    }
+
+    private String formatTimpRamas() {
+        long timpRamas = timpMaxim - (System.currentTimeMillis() - timpInceput);
+        SimpleDateFormat dateFormat = new SimpleDateFormat("mm:ss");
+        return "Timp ramas: " + dateFormat.format(new Date(timpRamas));
+    }
+
+    private void verificareRaspuns() {
+        Intrebare intrebareCurenta = intrebari.get(numarIntrebariAfisate - 1);
+        for (int i = 0; i < radioButtons.length; i++) {
+            if (radioButtons[i].isSelected() && (i + 1) == intrebareCurenta.raspunsCorect) {
+                numarRaspunsuriCorecte++;
+            } else if (radioButtons[i].isSelected()) {
+                numarRaspunsuriGresite++;
+            }
+        }
+    }
+
+    private void actualizeazaTimer() {
+        long timpRamas = timpMaxim - (System.currentTimeMillis() - timpInceput);
+
+        if (timpRamas > 0) {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("mm:ss");
+            String timpFormatat = dateFormat.format(new Date(timpRamas));
+
+            // Afisare numar de raspunsuri corecte si gresite
+            timerLabel.setText("Timp ramas: " + timpFormatat +
+                    " | Corecte: " + numarRaspunsuriCorecte +
+                    " | Gresite: " + numarRaspunsuriGresite);
+        } else {
+            timer.stop();
+            afisareRezultat("Timpul a expirat, " + userName + ", ai esuat.");
+        }
+    }
+
+    private void afisareRezultat(String s) {
+        JOptionPane.showMessageDialog(frame, "Numarul de raspunsuri corecte: " + numarRaspunsuriCorecte +
+                "\nNumarul de raspunsuri gresite: " + numarRaspunsuriGresite +
+                (numarRaspunsuriGresite > 3 || numarRaspunsuriCorecte < 7 || (System.currentTimeMillis() - timpInceput) >= timpMaxim ?
+                        "\nAi picat." : "\nAi trecut!"));
+        frame.dispose();
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                new ExamenTeoreticAuto();
+            }
+        });
+    }
+}
